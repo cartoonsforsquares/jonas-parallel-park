@@ -1,4 +1,4 @@
-# Help Joe Parallel Park
+# Help Joe Jonas Parallel Park
 
 A rough playable p5.js prototype. Back Joe's convertible into the gap between the delivery van and the mail truck, seen from the side.
 
@@ -13,6 +13,7 @@ A rough playable p5.js prototype. Back Joe's convertible into the gap between th
 
 - `Exports/`: the original cut-outs (Joe's car without wheels, happy and angry; Joe's wheel; the van; the mail truck).
 - `assets/`: trimmed, smaller WebP copies the game loads, plus `street.webp`, the cut-paper street drawn from the reference photo (buildings kept, cars and trees removed).
+- `assets/Torn Paper Texture.png` and `assets/Fuzzy Steering Wheel.png`: your originals (not uploaded to GitHub). The game uses the smaller `torn-paper.webp` and `fuzzy-wheel.webp`. `torn-paper-edge.json` is the paper's torn outline, which the street is trimmed to.
 - Car sizes are set by `CAR_LEN`, `VAN_LEN` and `TRUCK_LEN` at the top of `sketch.js`. `JOE_WHEELS` says where Joe's two wheels sit on the car image; they spin as far as the car rolls.
 
 ## Run it

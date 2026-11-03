@@ -1,5 +1,5 @@
 
-//Help Joe Parallel Park: back Joe's convertible into the gap between the van and the mail truck.
+//Help Joe Jonas Parallel Park: back Joe's convertible into the gap between the van and the mail truck.
 //Seen from the side. Hold BACK or GO to drive, and tap the wheel to steer in toward the curb
 //(it stays turned until he reaches the curb or you tap it again). Start turning too early or
 //too late and he bumps a parked car.
@@ -38,10 +38,11 @@ const JOE_WHEELS = { rear: [0.2204, 0.8875], front: [0.8018, 0.8875], r: 0.0721 
 
 const RED = '#C8152D', YELLOW = '#F1D62E', INK = '#281F1C', GREEN = '#6EDC78';
 const WHEEL_BTN = { x: 195, y: 700, r: 55 };
+const MAT = 7;           //how far the torn paper sticks out past the street on each side
 
 // ---------- State ----------
 
-let streetImg, joeHappy, joeAngry, wheelImg, vanImg, truckImg, retryPaper, scorePaper, monoFont;
+let streetImg, paperImg, paperEdge, steerImg, joeHappy, joeAngry, wheelImg, vanImg, truckImg, retryPaper, scorePaper, monoFont;
 let sc = 1, ox = 0, oy = 0;            //frame scale and offset in the window
 let state = 'start';                    //'start', 'play', 'parked'
 let waitRelease = false;                //ignore the tap that started the round until the finger lifts
@@ -50,11 +51,14 @@ let joe;                                //{ x, lane, v, tilt, spin }
 let steering = false;                   //the wheel is turned (tap to toggle)
 let bumps = 0, startTime = 0, endTime = 0, stillSince = 0, parkedAt = 0, stars = 0;
 let lastHit = 0, shakeUntil = 0, sticker = null;
-let confetti = [], puffs = [], tornTop = [], tornBot = [];
+let confetti = [], puffs = [];
 let best = loadBest(), newBest = false;
 
 function preload() {
   streetImg = loadImage('assets/street.webp');
+  paperImg = loadImage('assets/torn-paper.webp');          //from Torn Paper Texture.png
+  paperEdge = loadJSON('assets/torn-paper-edge.json');     //outline of that paper's torn edge, 0-1 across and down
+  steerImg = loadImage('assets/fuzzy-wheel.webp');         //from Fuzzy Steering Wheel.png
   joeHappy = loadImage('assets/joe-car-happy.webp');
   joeAngry = loadImage('assets/joe-car-angry.webp');
   wheelImg = loadImage('assets/joe-wheel.webp');
@@ -69,10 +73,7 @@ function setup() {
   createCanvas(windowWidth, windowHeight);
   pixelDensity(min(2, displayDensity()));
   fitFrame();
-  for (let x = SCENE.l; x <= SCENE.r; x += 7) {
-    tornTop.push([x, SCENE.t + random(-5, 2)]);
-    tornBot.push([x, SCENE.b + random(-2, 5)]);
-  }
+  paperEdge = Object.values(paperEdge);
   newRound();
 }
 
@@ -268,13 +269,20 @@ function draw() {
   pop();
 }
 
+//The street is printed on the torn paper: the paper sits behind, a little bigger, and the street is
+//trimmed to the same torn outline so a rim of real paper edge shows all round.
 function drawScene() {
   const ctx = drawingContext;
+  const pw = SCENE.r - SCENE.l + MAT * 2, ph = SCENE.b - SCENE.t + MAT * 2;
+  push();
+  ctx.shadowColor = 'rgba(40,31,28,0.35)'; ctx.shadowBlur = 14; ctx.shadowOffsetX = -4; ctx.shadowOffsetY = 6;
+  image(paperImg, SCENE.l - MAT, SCENE.t - MAT, pw, ph);
+  pop();
+
   ctx.save();
   noStroke();
   beginShape();
-  for (const p of tornTop) vertex(p[0], p[1]);
-  for (let i = tornBot.length - 1; i >= 0; i--) vertex(tornBot[i][0], tornBot[i][1]);
+  for (const [u, v] of paperEdge) vertex(lerp(SCENE.l, SCENE.r, u), lerp(SCENE.t, SCENE.b, v));
   endShape(CLOSE);
   ctx.clip();
 
@@ -399,7 +407,7 @@ function styledText(str, x, y, size, fillCol = YELLOW, depth = size * 0.1) {
 }
 
 function drawHeadline() {
-  styledText('HELP JOE', VW / 2, 48, 32);
+  styledText('HELP JOE JONAS', VW / 2, 48, 32);
   styledText('PARALLEL PARK', VW / 2, 88, 32);
 }
 
@@ -429,11 +437,11 @@ function drawControls() {
   push();
   translate(WHEEL_BTN.x, WHEEL_BTN.y + (h.wheel ? 3 : 0));
   scale(pulse);
-  if (h.wheel || hint) { noStroke(); fill(h.wheel ? GREEN : YELLOW); circle(0, 0, 94); }
-  rotate(h.wheel ? -1.1 : -0.5);
-  noFill(); stroke(INK); strokeWeight(11); circle(0, 0, 80);
-  strokeWeight(8); line(0, -36, 0, 36); line(-36, 0, 36, 0);
-  fill(YELLOW); strokeWeight(3); circle(0, 0, 26);
+  noStroke();
+  if (h.wheel || hint) { fill(h.wheel ? GREEN : YELLOW); stroke(INK); strokeWeight(3); circle(0, 0, 112); noStroke(); }
+  else { fill(40, 31, 28, 70); circle(4, 5, 100); }
+  rotate(h.wheel ? -0.7 : 0);
+  imageMode(CENTER); image(steerImg, 0, 0, 104, 104); imageMode(CORNER);
   pop();
   noStroke();
   if (hint) styledText('TURN', WHEEL_BTN.x, 645, 18);
