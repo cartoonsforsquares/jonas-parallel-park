@@ -1,0 +1,26 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* KC Bubble Shack: the headline font (trimmed to letters, numbers and space) */
+@font-face {
+    font-family: 'KCBubbleShack';
+    src: url('../fonts/KCBubbleShack.woff2') format('woff2');
+    font-display: block;
+}
+
+html, body {
+    overflow: hidden;
+    background: #C8152D;
+    /* hold the pedals without the page scrolling, zooming or selecting */
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+}
+
+canvas {
+    display: block;
+}
